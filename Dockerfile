@@ -14,7 +14,7 @@ COPY package*.json ./
 
 # Instala typescript globalmente si no está en tu package.json
 RUN npm install -g typescript
-RUN npm install -g phantomjs-prebuilt
+# RUN npm install -g phantomjs-prebuilt
 
 
 # Instala las dependencias
