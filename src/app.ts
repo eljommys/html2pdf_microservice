@@ -26,6 +26,7 @@ const getSangriaFiesta = (data: any): string => {
 };
 
 // Endpoint POST que recibe datos JSON y los convierte en PDF
+
 app.post("/sangria-fiesta", (req: Request, res: Response) => {
   const data = req.body;
 

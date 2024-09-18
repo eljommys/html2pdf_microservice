@@ -1,5 +1,7 @@
 # Usa una imagen base oficial de Node.js
-FROM node:18
+FROM node:18-slim
+
+RUN apt-get update && apt-get install -y chromium
 
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
@@ -12,6 +14,8 @@ COPY package*.json ./
 
 # Instala typescript globalmente si no está en tu package.json
 RUN npm install -g typescript
+RUN npm install -g phantomjs-prebuilt
+
 
 # Instala las dependencias
 RUN npm install
