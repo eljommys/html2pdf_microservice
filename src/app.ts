@@ -38,7 +38,8 @@ app.post("/sangria-fiesta", (req: Request, res: Response) => {
   // Genera el PDF a partir del HTML
   pdf.create(htmlContent, options).toBuffer((err, buffer) => {
     if (err) {
-      return res.status(500).send("Error al generar el PDF");
+      console.error(err);
+      return res.status(500).send(err);
     }
 
     // Establece las cabeceras para la descarga del PDF
