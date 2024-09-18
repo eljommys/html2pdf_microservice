@@ -43,7 +43,7 @@ app.post("/sangria-fiesta", (req: Request, res: Response) => {
 
     // Establece las cabeceras para la descarga del PDF
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=document.pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=invitation.pdf");
 
     // Envía el PDF generado
     res.send(buffer);
@@ -54,4 +54,5 @@ app.post("/sangria-fiesta", (req: Request, res: Response) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
+  console.log(`zorra`);
 });

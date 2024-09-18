@@ -16,6 +16,9 @@ COPY . .
 # Compila la aplicación TypeScript
 RUN npm run build
 
+# Comando para verificar si los archivos se generaron correctamente
+RUN ls -la dist
+
 # Expone el puerto 3000
 EXPOSE 3000
 

@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   html2pdf:
+    container_name: html2pdf
     build:
       context: .
       dockerfile: Dockerfile
