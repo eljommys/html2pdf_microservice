@@ -1,0 +1,10 @@
+{
+  "name": "WhatsappPersonalAlert",
+  "build": {
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "npm start",
+    "port": 3000
+  }
+}
