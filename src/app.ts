@@ -1,8 +1,8 @@
 import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
-import pdf from "html-pdf";
 import fs from "fs";
 import path from "path";
+import puppeteer from "puppeteer";
 
 // Inicializa la aplicación Express
 const app = express();
@@ -27,29 +27,42 @@ const getSangriaFiesta = (data: any): string => {
 
 // Endpoint POST que recibe datos JSON y los convierte en PDF
 
-app.post("/sangria-fiesta", (req: Request, res: Response) => {
+app.post("/sangria-fiesta", async (req: Request, res: Response) => {
   const data = req.body;
 
   // Obtiene el contenido HTML con los datos reemplazados
   const htmlContent = getSangriaFiesta(data);
 
   // Opciones de configuración para el PDF
-  const options: pdf.CreateOptions = { format: "A4" };
-
-  // Genera el PDF a partir del HTML
-  pdf.create(htmlContent, options).toBuffer((err, buffer) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send(err);
-    }
-
-    // Establece las cabeceras para la descarga del PDF
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=invitation.pdf");
-
-    // Envía el PDF generado
-    res.send(buffer);
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
+  const page = await browser.newPage();
+  await page.setContent(htmlContent);
+  const pdf = await page.pdf({ format: "A4" });
+  await browser.close();
+
+  const buffer = Buffer.from(pdf);
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", "attachment; filename=invitation.pdf");
+  res.send(buffer);
+  // const options: pdf.CreateOptions = { format: "A4" };
+
+  // // Genera el PDF a partir del HTML
+  // pdf.create(htmlContent, options).toBuffer((err, buffer) => {
+  //   if (err) {
+  //     console.error(err);
+  //     return res.status(500).send(err);
+  //   }
+
+  //   // Establece las cabeceras para la descarga del PDF
+  //   res.setHeader("Content-Type", "application/pdf");
+  //   res.setHeader("Content-Disposition", "attachment; filename=invitation.pdf");
+
+  //   // Envía el PDF generado
+  //   res.send(buffer);
+  // });
 });
 
 // Inicia el servidor

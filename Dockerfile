@@ -1,34 +1,52 @@
-# Usa una imagen base oficial de Node.js
 FROM node:18-slim
 
-RUN apt-get update && apt-get install -y chromium
+# Instala las dependencias necesarias para Puppeteer
+RUN apt-get update && apt-get install -y \
+    wget \
+    ca-certificates \
+    fonts-liberation \
+    libappindicator3-1 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdrm2 \
+    libgbm1 \
+    libnspr4 \
+    libnss3 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm-dev \
+    libxss1 \
+    libasound2 \
+    libxshmfence-dev \
+    xdg-utils \
+    lsb-release \
+    --no-install-recommends
 
-# Establece el directorio de trabajo en el contenedor
-WORKDIR /app
+# Establece la variable de entorno para que Puppeteer descargue Chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Copia el archivo package.json y package-lock.json al directorio de trabajo
+# Instala Chromium
+RUN apt-get update && apt-get install -y \
+    chromium
+
+RUN npm install -g pnpm
+
+# Crea el directorio de la app
+WORKDIR /usr/src/app
+
+# Copia los archivos de tu proyecto
 COPY package*.json ./
+RUN pnpm install
 
-# Instala wkhtmltopdf
-  # RUN apt-get update && apt-get install -y wkhtmltopdf
-
-# Instala typescript globalmente si no está en tu package.json
-RUN npm install -g typescript
-# RUN npm install -g phantomjs-prebuilt
-
-
-# Instala las dependencias
-RUN npm install
-
-# Copia el resto de los archivos del proyecto
 COPY . .
-
-# Compila la aplicación TypeScript
-RUN npm run build
 
 ARG PORT
 ENV PORT $PORT
 EXPOSE $PORT
 
-# Comando para iniciar la aplicación
+RUN npm run build
+
 CMD ["npm", "start"]
