@@ -14,6 +14,8 @@ dotenv.config();
 const app = express();
 app.use(bodyParser.json());
 
+const externalDomain = process.env.PUBLIC_DOMAIN || "localhost";
+
 // Configuración de MinIO
 const minioClient = new Client({
   endPoint: process.env.MINIO_ENDPOINT || "host.docker.internal",
@@ -41,18 +43,39 @@ const getSangriaFiesta = (data: any): string => {
   return html;
 };
 
+async function createBucket() {
+  try {
+    const bucketExists = await minioClient.bucketExists(bucketName);
+    if (!bucketExists) {
+      await minioClient.makeBucket(bucketName, "");
+      const policy = {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Principal: "*",
+            Action: [
+              "s3:GetObject", // Allows read access to objects
+            ],
+            Resource: [
+              `arn:aws:s3:::${bucketName}/*`, // Applies to all objects in the bucket
+            ],
+          },
+        ],
+      };
+      await minioClient.setBucketPolicy(bucketName, JSON.stringify(policy));
+      console.log(`Bucket ${bucketName} is now publicly accessible.`);
+    }
+  } catch (error) {
+    console.error("Error setting public policy:", error);
+  }
+}
 // Función para subir el PDF a MinIO
 const uploadToMinio = async (pdfBuffer: Buffer): Promise<string> => {
   const pdfName = `sangria-fiesta-${crypto.randomUUID()}.pdf`;
   const metaData = {
     "Content-Type": "application/pdf",
   };
-
-  // Asegura que el bucket existe
-  const bucketExists = await minioClient.bucketExists(bucketName);
-  if (!bucketExists) {
-    await minioClient.makeBucket(bucketName, "");
-  }
 
   // Sube el archivo PDF a MinIO
   await minioClient.putObject(
@@ -64,12 +87,12 @@ const uploadToMinio = async (pdfBuffer: Buffer): Promise<string> => {
   );
 
   // Genera un enlace público al PDF
-  const expiry = 24 * 60 * 60; // Enlace válido por 24 horas
-  const publicUrl = await minioClient.presignedGetObject(
-    bucketName,
-    pdfName,
-    expiry
-  );
+  const expiry = 7 * 24 * 60 * 60; // Enlace válido por 24 horas
+  const url = await minioClient.presignedGetObject(bucketName, pdfName, expiry);
+
+  const publicUrl = url
+    .split("?")[0]
+    .replace("host.docker.internal", externalDomain);
 
   return publicUrl;
 };
@@ -106,6 +129,7 @@ app.post("/sangria-fiesta", async (req: Request, res: Response) => {
 
 // Inicia el servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await createBucket();
   console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
