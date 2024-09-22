@@ -1,36 +1,36 @@
 {
-  "builds": [
+  "service": {
+    "name": "html2pdf-service"
+  },
+  "deployments": [
     {
-      "project": "html2pdf",
-      "buildCommand": "docker build .",
-      "startCommand": "docker run -p ${PORT}:${PORT} --env PORT=${PORT} html2pdf"
-    }
-  ],
-  "services": [
+      "name": "html2pdf",
+      "path": ".",
+      "dockerfile": "Dockerfile",
+      "start_cmd": "npm run start"
+    },
     {
       "name": "minio",
       "image": "minio/minio",
-      "envs": {
-        "MINIO_ROOT_USER": "${MINIO_ROOT_USER}",
-        "MINIO_ROOT_PASSWORD": "${MINIO_ROOT_PASSWORD}"
-      },
-      "volumes": [
-        {
-          "local": "minio_data",
-          "remote": "/data"
-        }
-      ],
-      "ports": [
-        {
-          "local": 9000,
-          "remote": 9000
-        },
-        {
-          "local": 9001,
-          "remote": 9001
-        }
-      ],
-      "command": "server --console-address \":9001\" /data"
+      "start_cmd": "minio server --console-address :9001 /data"
+    }
+  ],
+  "envs": {
+    "MINIO_ENDPOINT": "minio",
+    "MINIO_PORT": "9000",
+    "MINIO_ROOT_USER": "your_minio_user",
+    "MINIO_ROOT_PASSWORD": "your_minio_password",
+    "MINIO_USE_SSL": "false",
+    "MINIO_BUCKET": "pdfs",
+    "PUBLIC_DOMAIN": "mi-app.railway.app",
+    "PORT": "3000"
+  },
+  "plugins": [
+    {
+      "name": "volumes",
+      "type": "volume",
+      "path": "/data",
+      "volume_name": "minio_data"
     }
   ]
 }
