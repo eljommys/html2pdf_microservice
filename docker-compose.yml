@@ -8,6 +8,8 @@ services:
       - "${PORT}:${PORT}"
     environment:
       - PORT
+    networks:
+      - mynetwork_nest
 
   minio:
     image: minio/minio

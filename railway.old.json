@@ -11,6 +11,17 @@
         "NODE_ENV": "production",
         "PORT": "3000"
       }
+    },
+    {
+      "name": "html2pdf",
+      "startCommand": "npm start",
+      "buildCommand": "npm install",
+      "healthCheckPath": "/health",
+      "port": 9000,
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": "3000"
+      }
     }
   ]
 }
