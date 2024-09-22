@@ -1,16 +1,36 @@
 {
-  "name": "Html2Pdf_Microservice",
+  "builds": [
+    {
+      "project": "html2pdf",
+      "buildCommand": "docker build .",
+      "startCommand": "docker run -p ${PORT}:${PORT} --env PORT=${PORT} html2pdf"
+    }
+  ],
   "services": [
     {
-      "name": "html2pdf",
-      "startCommand": "npm start",
-      "buildCommand": "npm install",
-      "healthCheckPath": "/health",
-      "port": 3000,
-      "env": {
-        "NODE_ENV": "production",
-        "PORT": "3000"
-      }
+      "name": "minio",
+      "image": "minio/minio",
+      "envs": {
+        "MINIO_ROOT_USER": "${MINIO_ROOT_USER}",
+        "MINIO_ROOT_PASSWORD": "${MINIO_ROOT_PASSWORD}"
+      },
+      "volumes": [
+        {
+          "local": "minio_data",
+          "remote": "/data"
+        }
+      ],
+      "ports": [
+        {
+          "local": 9000,
+          "remote": 9000
+        },
+        {
+          "local": 9001,
+          "remote": 9001
+        }
+      ],
+      "command": "server --console-address \":9001\" /data"
     }
   ]
 }
