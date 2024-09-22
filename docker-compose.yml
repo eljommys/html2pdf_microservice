@@ -8,3 +8,25 @@ services:
       - "${PORT}:${PORT}"
     environment:
       - PORT
+
+  minio:
+    image: minio/minio
+    container_name: nest_s3_server
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server --console-address ":9001" /data
+    networks:
+      - mynetwork_nest
+
+volumes:
+  minio_data:
+
+networks:
+  mynetwork_nest:
+    driver: bridge
