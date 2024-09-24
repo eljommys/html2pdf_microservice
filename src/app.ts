@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 app.use(bodyParser.json());
 
-const externalDomain = process.env.PUBLIC_DOMAIN || "localhost";
+const externalMinioDomain = process.env.PUBLIC_MINIO_DOMAIN || "localhost";
 
 // Configuración de MinIO
 const minioClient = new Client({
@@ -92,7 +92,7 @@ const uploadToMinio = async (pdfBuffer: Buffer): Promise<string> => {
 
   const publicUrl = url
     .split("?")[0]
-    .replace("host.docker.internal", externalDomain);
+    .replace("host.docker.internal", externalMinioDomain);
 
   return publicUrl;
 };
