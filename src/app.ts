@@ -37,11 +37,11 @@ const getSangriaFiesta = (data: any): string => {
   let html = fs.readFileSync(filePath, "utf8");
 
   // Reemplaza los marcadores de posición en la plantilla con los datos del JSON
-  html = html.replace("{{restaurant_name}}", data.restaurant_name);
-  html = html.replace("{{time}}", data.time);
-  html = html.replace("{{date}}", data.date);
-  html = html.replace("{{address}}", data.address);
-  html = html.replace("{{email}}", data.email);
+  html = html.replace(/{{restaurant_name}}/g, data.restaurant_name);
+  html = html.replace(/{{time}}/g, data.time);
+  html = html.replace(/{{date}}/g, data.date);
+  html = html.replace(/{{address}}/g, data.address);
+  html = html.replace(/{{email}}/g, data.email);
 
   return html;
 };
