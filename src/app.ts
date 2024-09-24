@@ -15,10 +15,12 @@ const app = express();
 app.use(bodyParser.json());
 
 const externalMinioDomain = process.env.PUBLIC_MINIO_DOMAIN || "localhost";
+const internalMinioDomain =
+  process.env.MINIO_ENDPOINT || "host.docker.internal";
 
 // Configuración de MinIO
 const minioClient = new Client({
-  endPoint: process.env.MINIO_ENDPOINT || "host.docker.internal",
+  endPoint: internalMinioDomain,
   port: parseInt(process.env.MINIO_PORT || "9000"),
   useSSL: process.env.MINIO_USE_SSL === "true",
   accessKey: process.env.MINIO_ROOT_USER || "minioadmin",
@@ -92,7 +94,7 @@ const uploadToMinio = async (pdfBuffer: Buffer): Promise<string> => {
 
   const publicUrl = url
     .split("?")[0]
-    .replace("host.docker.internal", externalMinioDomain);
+    .replace(internalMinioDomain, externalMinioDomain);
 
   return publicUrl;
 };
