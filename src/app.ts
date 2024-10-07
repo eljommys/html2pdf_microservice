@@ -118,6 +118,7 @@ app.post("/sangria-fiesta", async (req: Request, res: Response) => {
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
     await page.waitForSelector("body");
     // await page.screenshot({ path: "screenshot.png", fullPage: true });
+
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true, // Incluir fondos y colores
@@ -127,6 +128,7 @@ app.post("/sangria-fiesta", async (req: Request, res: Response) => {
         bottom: "20px",
         left: "20px",
       },
+      pageRanges: "1", // Solo imprimir la primera página
     });
     const pdfBuffer = Buffer.from(pdf);
     await browser.close();
