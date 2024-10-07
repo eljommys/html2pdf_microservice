@@ -115,13 +115,34 @@ app.post("/sangria-fiesta", async (req: Request, res: Response) => {
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     const page = await browser.newPage();
-    await page.setContent(htmlContent);
-    const pdf = await page.pdf({ format: "A4" });
+    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+    await page.waitForSelector("body");
+    // await page.screenshot({ path: "screenshot.png", fullPage: true });
+    const pdf = await page.pdf({
+      format: "A4",
+      printBackground: true, // Incluir fondos y colores
+      margin: {
+        top: "20px",
+        right: "20px",
+        bottom: "20px",
+        left: "20px",
+      },
+    });
     const pdfBuffer = Buffer.from(pdf);
     await browser.close();
 
     // Sube el PDF a MinIO y obtiene el enlace público
     const publicUrl = await uploadToMinio(pdfBuffer);
+    // const fs = require("fs");
+    // const path = require("path");
+
+    // Define the local path where the PDF will be saved
+    // const localPdfPath = path.join(__dirname, "sangria-fiesta.pdf");
+
+    // Save the PDF buffer to a local file
+    // fs.writeFileSync(localPdfPath, pdfBuffer);
+
+    // console.log(`PDF saved locally at ${localPdfPath}`);
 
     // Devuelve el enlace público al cliente
     res.json({ url: publicUrl });
